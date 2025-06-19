@@ -2,7 +2,7 @@ import PostImage from "@/assets/images/logoicon.png";
 import { useRouter } from "expo-router";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-const HomeScreen = () => {
+const  HomeScreen = ()=> {
   const router = useRouter();
   return (
     <View style={styles.container}>
@@ -13,13 +13,15 @@ const HomeScreen = () => {
       </Text>
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push("/loginScreen")}
+        onPress={() => {
+          router.push("/loginScreen");
+        } }
       >
         <Text style={styles.buttonText}>Get Started</Text>
       </TouchableOpacity>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

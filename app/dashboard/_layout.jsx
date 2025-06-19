@@ -29,6 +29,15 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="chat"
+        options={{
+          title: 'Medic Chat',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name="chat" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',

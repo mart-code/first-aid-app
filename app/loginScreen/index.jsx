@@ -13,7 +13,7 @@ import { useAuth } from "../../context/AuthContext";
 
 const LoginScreen = () => {
   const router = useRouter();
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, user, signOut } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -21,15 +21,22 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     const result = await signIn(email, password);
-    router.push("/dashboard");
-    if (!result.success) {
+    if (result.success) {
+      Alert.alert("Login Successful");
+      router.push("/dashboard");
+    } else {
       Alert.alert("Login Failed", result.error);
     }
   };
 
   const handleRegister = async () => {
+    await signOut();
+
     const result = await signUp(email, password, name);
-    if (!result.success) Alert.alert("Registration Failed", result.error);
+    if(result.success){
+      Alert.alert("Registration Successful")
+    }
+    else  Alert.alert("Registration Failed", result.error);
   };
 
   return (

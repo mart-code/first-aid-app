@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.martcode.firstaid"
     },
     "web": {
       "bundler": "metro",
@@ -33,10 +34,23 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "@rnmapbox/maps",
+        {
+          "RNMapboxMapsImpl": "mapbox",
+          "RNMapboxMapsDownloadToken": "sk.eyJ1IjoibWFydGNvZGUiLCJhIjoiY21jMXhvZnRnMDJjZDJtc2V0cDI2dTRwZiJ9.1oO6519Hd90k864RIjNYGQ"
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ca3621d8-861f-4d82-899c-63ccc7fc5962"
+      }
     }
   }
 }

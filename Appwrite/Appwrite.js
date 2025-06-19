@@ -1,5 +1,6 @@
 import { Client, Account, ID } from 'react-native-appwrite';
 import 'react-native-url-polyfill/auto';
+
 const client = new Client();
 
 client

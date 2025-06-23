@@ -20,6 +20,16 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="chatscreen"
+        options={{
+          title: 'Chat',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name="chatbox-outline" size={24} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
         name="search"
         options={{
           title: 'Search',
@@ -29,24 +39,15 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="chat"
+        name="profile"
         options={{
-          title: 'Medic Chat',
+          title: 'Profile',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name="chat" size={24} color={color} />
+            <Ionicons name="person-outline" size={24} color={color} />
           ),
         }}
       />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Settings',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name="settings" size={24} color={color} />
-          ),
-        }}
-      />
-      {/* Add more tabs as needed */}
+   
     </Tabs>
   );
 }

@@ -20,6 +20,7 @@ const LoginScreen = () => {
   const [isRegistering, setIsRegistering] = useState(false);
 
   const handleLogin = async () => {
+    
     const result = await signIn(email, password);
     if (result.success) {
       Alert.alert("Login Successful");
@@ -33,10 +34,10 @@ const LoginScreen = () => {
     await signOut();
 
     const result = await signUp(email, password, name);
-    if(result.success){
-      Alert.alert("Registration Successful")
-    }
-    else  Alert.alert("Registration Failed", result.error);
+    if (result.success) {
+      Alert.alert("Registration Successful");
+      router.push("/dashboard");
+    } else Alert.alert("Registration Failed", result.error);
   };
 
   return (
@@ -48,6 +49,7 @@ const LoginScreen = () => {
           placeholder="Name"
           value={name}
           onChangeText={setName}
+           placeholderTextColor={'#666'}
         />
       )}
       <TextInput
@@ -55,6 +57,7 @@ const LoginScreen = () => {
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
+         placeholderTextColor={'#666'}
         keyboardType="email-address"
         autoCapitalize="none"
       />
@@ -64,6 +67,7 @@ const LoginScreen = () => {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        placeholderTextColor={'#666'}
       />
       <TouchableOpacity
         style={styles.button}
@@ -103,6 +107,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 15,
     borderRadius: 5,
+    color: "#111",
   },
   button: { backgroundColor: "crimson", padding: 15, borderRadius: 5 },
   buttonText: { color: "#fff", textAlign: "center", fontWeight: "bold" },

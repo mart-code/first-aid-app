@@ -1,13 +1,17 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { useAuth } from '../context/AuthContext'; // Adjust path as needed
+import { useAuth } from '../../context/AuthContext'; // Adjust path as needed
+import { router } from 'expo-router';
 
 export default function Profile() {
   const { user, signOut } = useAuth();
 
   const handleLogout = async () => {
     const result = await signOut();
-    if (!result.success) {
+    if(result.success){
+      router.push('/loginScreen')
+    }
+    else {
       Alert.alert('Logout Failed', result.error);
     }
   };

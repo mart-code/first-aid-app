@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
       const currentUser = await account.get();
       setUser(currentUser);
       if(currentUser){
-        router.push('/dashboard/home')
+        router.push('/dashboard');
       }
     } catch (error) {
       setUser(null);

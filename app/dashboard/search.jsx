@@ -15,11 +15,7 @@ export default function MapScreen() {
 
   useEffect(() => {
     (async () => {
-      // let { status } = await Location.requestForegroundPermissionsAsync();
-      // if (status !== 'granted') {
-      //   Alert.alert('Permission denied', 'Location permission is required.');
-      //   return;
-      // }
+  
       let loc = await Location.getCurrentPositionAsync({});
       setLocation([loc.coords.longitude, loc.coords.latitude]);
     })();

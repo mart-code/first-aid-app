@@ -20,7 +20,7 @@ const LoginScreen = () => {
   const [isRegistering, setIsRegistering] = useState(false);
 
   const handleLogin = async () => {
-    
+    await signOut(); // Ensure user is signed out before login
     const result = await signIn(email, password);
     if (result.success) {
       Alert.alert("Login Successful");
@@ -29,6 +29,12 @@ const LoginScreen = () => {
       Alert.alert("Login Failed", result.error);
     }
   };
+
+  if (user) {
+    // If user is already logged in, redirect to dashboard
+    router.push("/dashboard");
+    return null; 
+  }
 
   const handleRegister = async () => {
     await signOut();

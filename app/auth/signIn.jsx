@@ -24,7 +24,7 @@ const LoginScreen = () => {
     const result = await signIn(email, password);
     if (result.success) {
       Alert.alert("Login Successful");
-      router.push("/dashboard");
+      router.push("/dashboard/home");
     } else {
       Alert.alert("Login Failed", result.error);
     }

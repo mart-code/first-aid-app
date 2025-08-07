@@ -19,7 +19,7 @@ const openAI = new OpenAI({
   apiKey: process.env.EXPO_PUBLIC_DEEPSEEK_KEY,
 });
 
-export default function ChatBotCustom() {
+export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const [keyboardHeight, setKeyboardHeight] = useState(0);

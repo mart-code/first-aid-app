@@ -1,7 +1,7 @@
 // context/AuthContext.js
+import { router } from "expo-router";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { ID, account } from "../Appwrite/Appwrite";
-import { router } from "expo-router";
 
 const AuthContext = createContext();
 
@@ -14,8 +14,8 @@ export const AuthProvider = ({ children }) => {
     try {
       const currentUser = await account.get();
       setUser(currentUser);
-      if(currentUser){
-        router.push('/dashboard');
+      if (currentUser) {
+        router.push("/dashboard/home");
       }
     } catch (error) {
       setUser(null);
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
       await account.createEmailPasswordSession(email, password);
       const currentUser = await account.get();
       setUser(currentUser);
-      
+
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };

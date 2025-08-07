@@ -14,7 +14,7 @@ const  HomeScreen = ()=> {
       <TouchableOpacity
         style={styles.button}
         onPress={() => {
-          router.push("/loginScreen");
+          router.push("/auth/signIn");
         } }
       >
         <Text style={styles.buttonText}>Get Started</Text>

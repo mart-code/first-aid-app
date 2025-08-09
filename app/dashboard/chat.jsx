@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
   },
-  chatContainer: { padding: 10, paddingBottom: 80 },
+  chatContainer: { padding: 10, paddingBottom: 80, backgroundColor: 'black', color: '#ffffff' },
   messageContainer: {
     maxWidth: "80%",
     marginVertical: 5,

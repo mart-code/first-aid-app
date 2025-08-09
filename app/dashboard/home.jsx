@@ -1,17 +1,58 @@
-// app/dashboard/index.jsx
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
+import { router } from 'expo-router';
 
 export default function Dashboard() {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [healthCenters, setHealthCenters] = useState([
-    { id: 1, name: "City General Hospital", latitude: 37.78825, longitude: -122.4324, distance: "1.2 km" },
-    { id: 2, name: "Central Medical Clinic", latitude: 37.7749, longitude: -122.4194, distance: "2.5 km" },
-    { id: 3, name: "Community Health Center", latitude: 37.7845, longitude: -122.4087, distance: "3.1 km" },
-  ]);
+  const [places, setPlaces] = useState([]); // Initialize as empty array instead of null
+
+const fetchNearbyPlaces = async (latitude, longitude, radius = 5000) => {
+  const overpassQuery = `[out:json][timeout:25];
+    (
+      node["amenity"="hospital"](around:${radius},${latitude},${longitude});
+      way["amenity"="hospital"](around:${radius},${latitude},${longitude});
+      relation["amenity"="hospital"](around:${radius},${latitude},${longitude});
+      node["amenity"="clinic"](around:${radius},${latitude},${longitude});
+      way["amenity"="clinic"](around:${radius},${latitude},${longitude});
+      relation["amenity"="clinic"](around:${radius},${latitude},${longitude});
+      node["amenity"="fire_station"](around:${radius},${latitude},${longitude});
+      way["amenity"="fire_station"](around:${radius},${latitude},${longitude});
+      relation["amenity"="fire_station"](around:${radius},${latitude},${longitude});
+      node["healthcare"="hospital"](around:${radius},${latitude},${longitude});
+      way["healthcare"="hospital"](around:${radius},${latitude},${longitude});
+      relation["healthcare"="hospital"](around:${radius},${latitude},${longitude});
+      node["healthcare"="clinic"](around:${radius},${latitude},${longitude});
+      way["healthcare"="clinic"](around:${radius},${latitude},${longitude});
+      relation["healthcare"="clinic"](around:${radius},${latitude},${longitude});
+    );
+    out center;`;
+
+  try {
+    const response = await fetch('https://overpass-api.de/api/interpreter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `data=${encodeURIComponent(overpassQuery)}`,
+    });
+    const data = await response.json();
+    return data.elements
+      .filter((place) => place.tags.name && place.tags.name !== 'Unknown') // Filter out places without a valid name
+      .map((place) => ({
+        id: place.id,
+        name: place.tags.name, // No need for fallback since we filtered out undefined names
+        type: place.tags.amenity,
+        latitude: place.lat || place.center.lat,
+        longitude: place.lon || place.center.lon,
+        address: place.tags['addr:full'] || `${place.tags['addr:street'] || ''}, ${place.tags['addr:city'] || ''}`,
+      }));
+  } catch (error) {
+    console.error('Error fetching places:', error);
+    setErrorMsg('Failed to fetch nearby places');
+    return [];
+  }
+};
 
   useEffect(() => {
     (async () => {
@@ -21,32 +62,40 @@ export default function Dashboard() {
         return;
       }
 
+      let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+      setLocation(location.coords);
 
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
+      // Fetch nearby places
+      const nearbyPlaces = await fetchNearbyPlaces(location.coords.latitude, location.coords.longitude);
+      console.log(nearbyPlaces);
+      setPlaces(nearbyPlaces);
     })();
   }, []);
 
   const emergencyOptions = [
-    { id: 1, title: "Report Accident", icon: "alert-circle", color: "#ef4444" },
-    { id: 2, title: "Request Firefighter", icon: "flame", color: "#f97316" },
-    { id: 3, title: "Chat with Doctor", icon: "medical", color: "#3b82f6" },
+    { id: 1, title: 'Report Accident', icon: 'alert-circle', color: '#ef4444' },
+    { id: 2, title: 'Request Firefighter', icon: 'flame', color: '#f97316' },
+    { id: 3, title: 'Chat with Doctor', icon: 'medical', color: '#3b82f6' },
   ];
 
   return (
     <ScrollView style={styles.container}>
       {/* Emergency Options Section */}
       <Text style={styles.sectionTitle}>Emergency Services</Text>
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        style={styles.horizontalScroll}
-      >
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
         {emergencyOptions.map((option) => (
-          <TouchableOpacity 
-            key={option.id} 
+          <TouchableOpacity
+            key={option.id}
             style={[styles.emergencyCard, { backgroundColor: option.color }]}
-            onPress={() => console.log(option.title)}
+            onPress={() => {
+              if(option.title === 'Report Accident'){
+                router.push('../services/accident')
+              } else if (option.title === 'Request Firefighter'){
+                router.push('../services/firefighter')
+              } else {
+                router.push('../services/doctor')
+              }
+            }}
           >
             <Ionicons name={option.icon} size={30} color="white" />
             <Text style={styles.emergencyText}>{option.title}</Text>
@@ -58,29 +107,31 @@ export default function Dashboard() {
       <Text style={styles.sectionTitle}>Nearby Health Centers</Text>
       {errorMsg ? (
         <Text style={styles.errorText}>{errorMsg}</Text>
-      ) : location ? (
-        <View style={styles.mapContainer}>
-
-
-          <View style={styles.centersList}>
-            {healthCenters.map((center) => (
-              <TouchableOpacity 
-                key={center.id} 
-                style={styles.centerCard}
-                onPress={() => Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${center.latitude},${center.longitude}`)}
-              >
-                <Ionicons name="medkit" size={24} color="#3b82f6" />
-                <View style={styles.centerInfo}>
-                  <Text style={styles.centerName}>{center.name}</Text>
-                  <Text style={styles.centerDistance}>{center.distance} away</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#64748b" />
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      ) : (
+      ) : !location ? (
         <Text style={styles.loadingText}>Loading your location...</Text>
+      ) : places.length === 0 ? (
+        <Text style={styles.loadingText}>No nearby health centers found.</Text>
+      ) : (
+        <View style={styles.centersList}>
+          {places.map((center, index) => (
+            <TouchableOpacity
+              key={center.id || index} // Use center.id or fallback to index
+              style={styles.centerCard}
+              onPress={() =>
+                Linking.openURL(
+                  `https://www.google.com/maps/dir/?api=1&destination=${center.latitude},${center.longitude}`
+                )
+              }
+            >
+              <Ionicons name="medkit" size={24} color="#3b82f6" />
+              <View style={styles.centerInfo}>
+                <Text style={styles.centerName}>{center.name}</Text>
+                <Text style={styles.centerDistance}>{center.address}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#64748b" />
+            </TouchableOpacity>
+          ))}
+        </View>
       )}
     </ScrollView>
   );
@@ -115,16 +166,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontWeight: '500',
     textAlign: 'center',
-  },
-  mapContainer: {
-    height: 300,
-    borderRadius: 12,
-    overflow: 'hidden',
-    marginBottom: 16,
-  },
-  map: {
-    width: '100%',
-    height: '100%',
   },
   centersList: {
     marginTop: 12,

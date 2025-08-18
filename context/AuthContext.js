@@ -1,7 +1,7 @@
 // context/AuthContext.js
 import { router } from "expo-router";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { ID, account } from "../Appwrite/Appwrite";
+import { ID, account, databases } from "../Appwrite/Appwrite";
 
 const AuthContext = createContext();
 
@@ -42,11 +42,39 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Register function
-  const signUp = async (email, password, name) => {
+  const signUp = async (email, password, name, isAdmin, adminDetails) => {
     try {
-      await account.create(ID.unique(), email, password, name);
-      // Auto login after registration
-      return await signIn(email, password);
+      const user = await account.create(ID.unique(), email, password, name);
+      await account.createEmailPasswordSession(email, password); // Auto-login
+      if (isAdmin) {
+        await databases.createDocument(
+          'ems-db', // Replace with your database ID
+          'user_profiles', // Collection ID
+          ID.unique(),
+          {
+            userId: user.$id,
+            isAdmin: true,
+            role: adminDetails.role,
+            state: adminDetails.state,
+            number: adminDetails.number,
+            organization: adminDetails.organization,
+          },
+          [`user:${user.$id}`] // Permissions: only this user can read/write
+        );
+      } else {
+        await databases.createDocument(
+          'ems-db',
+          'user_profiles',
+          ID.unique(),
+          {
+            userId: user.$id,
+            isAdmin: false,
+          },
+          [`user:${user.$id}`]
+        );
+      }
+      setUser(user);
+      return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
     }

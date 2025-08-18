@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { router } from 'expo-router';
+import { useAuth } from '../../context/AuthContext';
+import { databases, ID } from '../../Appwrite/Appwrite';
 
 export default function Dashboard() {
+   const { user } = useAuth();
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [places, setPlaces] = useState([]); // Initialize as empty array instead of null
@@ -72,6 +75,27 @@ const fetchNearbyPlaces = async (latitude, longitude, radius = 5000) => {
     })();
   }, []);
 
+  const createRequest = async () => {
+    try {
+      await databases.createDocument(
+        'ems-app', // Replace with your database ID
+        'requests',
+        ID.unique(),
+        {
+          userId: user.$id,
+          status: 'open',
+          type: 'Chat with Doctor',
+          createdAt: new Date().toISOString(),
+        },
+        [`user:${user.$id}`, 'role:admin'] // Permissions
+      );
+      Alert.alert('Request Created', 'Your request to chat with a doctor has been sent.');
+    } catch (error) {
+      console.error('Error creating request:', error);
+      Alert.alert('Error', 'Failed to create request.');
+    }
+  };
+
   const emergencyOptions = [
     { id: 1, title: 'Report Accident', icon: 'alert-circle', color: '#ef4444' },
     { id: 2, title: 'Request Firefighter', icon: 'flame', color: '#f97316' },
@@ -80,7 +104,6 @@ const fetchNearbyPlaces = async (latitude, longitude, radius = 5000) => {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Emergency Options Section */}
       <Text style={styles.sectionTitle}>Emergency Services</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
         {emergencyOptions.map((option) => (
@@ -88,12 +111,12 @@ const fetchNearbyPlaces = async (latitude, longitude, radius = 5000) => {
             key={option.id}
             style={[styles.emergencyCard, { backgroundColor: option.color }]}
             onPress={() => {
-              if(option.title === 'Report Accident'){
-                router.push('../services/accident')
-              } else if (option.title === 'Request Firefighter'){
-                router.push('../services/firefighter')
+              if (option.title === 'Report Accident') {
+                router.push('../services/accident');
+              } else if (option.title === 'Request Firefighter') {
+                router.push('../services/firefighter');
               } else {
-                router.push('../services/doctor')
+                createRequest();
               }
             }}
           >
@@ -102,8 +125,6 @@ const fetchNearbyPlaces = async (latitude, longitude, radius = 5000) => {
           </TouchableOpacity>
         ))}
       </ScrollView>
-
-      {/* Nearby Health Centers Section */}
       <Text style={styles.sectionTitle}>Nearby Health Centers</Text>
       {errorMsg ? (
         <Text style={styles.errorText}>{errorMsg}</Text>
@@ -113,9 +134,9 @@ const fetchNearbyPlaces = async (latitude, longitude, radius = 5000) => {
         <Text style={styles.loadingText}>No nearby health centers found.</Text>
       ) : (
         <View style={styles.centersList}>
-          {places.map((center, index) => (
+          {places.map((center) => (
             <TouchableOpacity
-              key={center.id || index} // Use center.id or fallback to index
+              key={center.id}
               style={styles.centerCard}
               onPress={() =>
                 Linking.openURL(

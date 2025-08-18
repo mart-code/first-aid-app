@@ -1,7 +1,8 @@
-import { Client, Account, ID } from 'react-native-appwrite';
+import { Client, Account, ID, Realtime, Databases, Query } from 'react-native-appwrite';
 import 'react-native-url-polyfill/auto';
 
 const client = new Client();
+const query = new Query();
 
 client
   .setEndpoint(process.env.EXPO_PUBLIC_APPWRITE_API_ENDPOINT) 
@@ -9,5 +10,7 @@ client
   .setPlatform(process.env.EXPO_PUBLIC_APPWRITE_PACKAGE_ID);
 
 const account = new Account(client);
+const realtime = new Realtime(client);
+const databases = new Databases(client);
 
-export { client, account, ID };
+export { client, account, ID, realtime, databases, query };

@@ -9,7 +9,10 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -17,7 +20,8 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.martcode.firstaid"
+      "package": "com.martcode.firstaid",
+      "runtimeVersion": "1.0.0"
     },
     "web": {
       "bundler": "metro",
@@ -26,6 +30,14 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "kotlinVersion": "1.9.25"
+          }
+        }
+      ],
       [
         "expo-splash-screen",
         {
@@ -46,11 +58,15 @@
     "experiments": {
       "typedRoutes": true
     },
+    "jsEngine": "jsc",
     "extra": {
       "router": {},
       "eas": {
         "projectId": "ca3621d8-861f-4d82-899c-63ccc7fc5962"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/ca3621d8-861f-4d82-899c-63ccc7fc5962"
     }
   }
 }

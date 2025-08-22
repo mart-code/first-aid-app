@@ -1,7 +1,6 @@
-// context/AuthContext.js
-import { router } from "expo-router";
+/* eslint-disable no-unused-vars */
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { ID, account, databases } from "../Appwrite/Appwrite";
+import { ID, account, databases, query } from "../Appwrite/Appwrite";
 
 const AuthContext = createContext();
 
@@ -10,22 +9,27 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   // Check if user is logged in on app start
-  const getCurrentUser = async () => {
-    try {
-      const currentUser = await account.get();
-      setUser(currentUser);
-      if (currentUser) {
-        router.push("/dashboard/home");
-      }
-    } catch (error) {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    getCurrentUser();
+    const checkSession = async () => {
+      try {
+        const user = await account.get();
+        const profile = await databases.listDocuments(
+          "ems-db",
+          "user_profiles",
+          [query.equal("userId", user.$id)]
+        );
+        const userWithProfile = {
+          ...user,
+          isAdmin: profile.documents[0]?.isAdmin || false,
+        };
+        setUser(userWithProfile);
+      } catch (error) {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkSession();
   }, []);
 
   // Login function
@@ -33,9 +37,17 @@ export const AuthProvider = ({ children }) => {
     try {
       await account.createEmailPasswordSession(email, password);
       const currentUser = await account.get();
-      setUser(currentUser);
-
-      return { success: true };
+      const profile = await databases.listDocuments(
+        "ems-db",
+        "user_profiles",
+        [query.equal("userId", currentUser.$id)]
+      );
+      const userWithProfile = {
+        ...currentUser,
+        isAdmin: profile.documents[0]?.isAdmin || false,
+      };
+      setUser(userWithProfile);
+      return { success: true, isAdmin: userWithProfile.isAdmin };
     } catch (error) {
       return { success: false, error: error.message };
     }
@@ -48,8 +60,8 @@ export const AuthProvider = ({ children }) => {
       await account.createEmailPasswordSession(email, password); // Auto-login
       if (isAdmin) {
         await databases.createDocument(
-          'ems-db', // Replace with your database ID
-          'user_profiles', // Collection ID
+          "ems-db",
+          "user_profiles",
           ID.unique(),
           {
             userId: user.$id,
@@ -59,12 +71,12 @@ export const AuthProvider = ({ children }) => {
             number: adminDetails.number,
             organization: adminDetails.organization,
           },
-          [`user:${user.$id}`] // Permissions: only this user can read/write
+          [`user:${user.$id}`]
         );
       } else {
         await databases.createDocument(
-          'ems-db',
-          'user_profiles',
+          "ems-db",
+          "user_profiles",
           ID.unique(),
           {
             userId: user.$id,
@@ -73,8 +85,19 @@ export const AuthProvider = ({ children }) => {
           [`user:${user.$id}`]
         );
       }
-      setUser(user);
-      return { success: true };
+      // Fetch the full user profile after registration
+      const currentUser = await account.get();
+      const profile = await databases.listDocuments(
+        "ems-db",
+        "user_profiles",
+        [query.equal("userId", currentUser.$id)]
+      );
+      const userWithProfile = {
+        ...currentUser,
+        isAdmin: profile.documents[0]?.isAdmin || false,
+      };
+      setUser(userWithProfile);
+      return { success: true, isAdmin: userWithProfile.isAdmin };
     } catch (error) {
       return { success: false, error: error.message };
     }
@@ -98,4 +121,10 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}

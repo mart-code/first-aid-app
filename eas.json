@@ -6,19 +6,32 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "MAPBOX_DOWNLOAD_TOKEN": "sk.eyJ1IjoibWFydGNvZGUiLCJhIjoiY21jMXhvZnRnMDJjZDJtc2V0cDI2dTRwZiJ9.1oO6519Hd90k864RIjNYGQ"
+      }
     },
     "preview": {
-     
-       "android": {
+      "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "MAPBOX_DOWNLOAD_TOKEN": "sk.eyJ1IjoibWFydGNvZGUiLCJhIjoiY21jMXhvZnRnMDJjZDJtc2V0cDI2dTRwZiJ9.1oO6519Hd90k864RIjNYGQ"
       }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "MAPBOX_DOWNLOAD_TOKEN": "sk.eyJ1IjoibWFydGNvZGUiLCJhIjoiY21jMXhvZnRnMDJjZDJtc2V0cDI2dTRwZiJ9.1oO6519Hd90k864RIjNYGQ"
+      }
+    },
+    "development-simulator": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      },
+      "environment": "development"
     }
-  },
-  "submit": {
-    "production": {}
   }
 }
